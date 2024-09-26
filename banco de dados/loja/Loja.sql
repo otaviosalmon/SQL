@@ -625,3 +625,36 @@ SELECT nm_produto,preco
 FROM tb_produtos
 WHERE preco = (SELECT MAX (preco)
 FROM tb_produtos);
+
+SELECT TO_CHAR(TO_DATE('05-FEV-1968'),'MONTH DD,YYYY')
+FROM dual;
+
+SELECT TO_DATE('04-JUL-2013'), TO_DATE('04-JUL-13')
+FROM dual;
+
+SELECT TO_DATE('Jul 06,2013', 'MONTH DD,YYYY')
+FROM dual;
+
+SELECT *
+FROM nls_session_parameters;
+
+ALTER SESSION SET NLS_DATE_FORMAT = 'Mon/dd/yyyy';
+
+SELECT TO_DATE('7.4.13','MM.DD.YY')
+FROM dual;
+
+INSERT INTO tb_clientes(id_cliente,nome,sobrenome,dt_nascimento,telefone,fg_ativo)
+VALUES(
+10,
+'Nome',
+'Sobrenome',
+TO_DATE('Jul 04, 2013 19:32:36','MONTH DD, YYYY HH24:MI:SS'),
+'800-555-1215',
+1);
+
+SELECT id_cliente,
+    TO_CHAR (dt_nascimento,'DD-MON-YYYY HH24:MI:SS')
+FROM tb_clientes
+ORDER BY id_cliente;
+
+ROLLBACK;
