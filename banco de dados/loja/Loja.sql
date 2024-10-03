@@ -658,3 +658,79 @@ FROM tb_clientes
 ORDER BY id_cliente;
 
 ROLLBACK;
+
+SELECT ROUND(TO_DATE('May 25 ,2023'))
+FROM dual;
+
+SELECT TO_CHAR
+    (ROUND
+    (TO_DATE('Jul 03,2023 19:45:26','MONTH DD, YYYY HH24:MI:SS'),'HH24'),
+        'MONTH DD, YYYY HH24:MI:SS')
+FROM duaL;
+
+SELECT
+    EXTRACT(YEAR FROM TO_DATE('Jul 03, 2023 19:45:26',
+        'MONTH DD, YYYY HH24:MI:SS')) AS YEAR,
+         EXTRACT(MONTH FROM TO_DATE('Jul 03, 2023 19:45:26',
+        'MONTH DD, YYYY HH24:MI:SS')) AS MONTH,
+         EXTRACT(DAY FROM TO_DATE('Jul 03, 2023 19:45:26',
+        'MONTH DD, YYYY HH24:MI:SS')) AS DAY
+FROM dual;
+
+SELECT
+    EXTRACT(HOUR FROM TO_TIMESTAMP('Jul 03, 2023 19:45:26',
+        'MONTH DD, YYYY HH24:MI:SS')) AS HORA,
+     EXTRACT(MINUTE FROM TO_TIMESTAMP('Jul 03, 2023 19:45:26',
+        'MONTH DD, YYYY HH24:MI:SS')) AS MINUTO,
+     EXTRACT(SECOND FROM TO_TIMESTAMP('Jul 03, 2023 19:45:26',
+        'MONTH DD, YYYY HH24:MI:SS')) AS SEGUNDO
+FROM dual;
+
+SELECT *
+FROM tb_promocao;
+
+SELECT 
+   NUMTODSINTERVAL(1.5, 'DAY'),
+   NUMTODSINTERVAL(3.25, 'HOUR'),
+   NUMTODSINTERVAL(5, 'MINUTE'),
+   NUMTODSINTERVAL(10.123456789, 'SECOND')
+FROM dual;
+
+
+SELECT 
+   NUMTOYMINTERVAL(1.5, 'YEAR'),
+   NUMTOYMINTERVAL(3.25, 'MONTH')
+FROM dual;
+
+SELECT nome,sobrenome
+FROM tb_clientes
+WHERE id_cliente = (SELECT id_cliente
+                    FROM tb_clientes
+                    WHERE sobrenome = 'Blue');
+
+SELECT id_produto, nm_produto, preco
+FROM tb_produtos
+WHERE preco > (SELECT AVG(preco)
+               FROM tb_produtos);
+               
+SELECT id_tipo_produto, AVG(preco)
+FROM tb_produtos
+GROUP BY id_tipo_produto
+HAVING AVG(preco) < (SELECT MAX(AVG(preco))
+                     FROM tb_produtos
+                     GROUP BY id_tipo_produto)
+ORDER BY id_tipo_produto;
+
+SELECT id_produto
+FROM (SELECT id_produto
+      FROM tb_produtos
+      WHERE id_produto < 3);
+      
+
+SELECT p.id_produto, preco, dados_compra.count_produto
+FROM tb_produtos p, (SELECT id_produto, COUNT(id_produto) count_produto
+                     FROM tb_compras
+                     GROUP BY id_produto) dados_compra
+WHERE p.id_produto = dados_compra.id_produto;   
+
+
