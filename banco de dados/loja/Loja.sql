@@ -733,4 +733,118 @@ FROM tb_produtos p, (SELECT id_produto, COUNT(id_produto) count_produto
                      GROUP BY id_produto) dados_compra
 WHERE p.id_produto = dados_compra.id_produto;   
 
+-- Data (08/10/2024)
 
+SELECT id_produto, nm_produto
+FROM tb_produtos
+WHERE id_produto IN (SELECT id_produto
+                     FROM tb_produtos
+                     WHERE nm_produto LIKE '%e%');
+SELECT id_produto, nm_produto
+FROM tb_produtos
+WHERE id_produto NOT IN (SELECT id_produto
+                         FROM tb_compras);
+                         
+
+SELECT id_funcionario, nome, salario
+FROM tb_funcionarios
+WHERE salario < ANY (SELECT base_salario
+                     FROM tb_grades_salarios);
+                     
+SELECT id_funcionario, nome, salario
+FROM tb_funcionarios
+WHERE salario > ALL (SELECT teto_salario
+                     FROM tb_grades_salarios);
+
+
+SELECT id_produto, id_tipo_produto, nm_produto, preco
+FROM tb_produtos
+WHERE (id_tipo_produto, preco) IN (SELECT id_tipo_produto, MIN(preco)
+                                   FROM tb_produtos
+                                   GROUP BY id_tipo_produto);
+
+SELECT id_produto, id_tipo_produto, nm_produto, preco
+FROM tb_produtos externa
+WHERE preco > (SELECT AVG(preco)
+               FROM tb_produtos interna
+               WHERE interna.id_tipo_produto = externa.id_tipo_produto);
+
+
+SELECT id_funcionario, nome, sobrenome
+FROM tb_funcionarios externa
+WHERE EXISTS (SELECT id_funcionario
+              FROM tb_funcionarios interna
+              WHERE interna.id_gerente = externa.id_funcionario);
+
+SELECT id_funcionario, nome, sobrenome
+FROM tb_funcionarios externa
+WHERE EXISTS (SELECT 1
+              FROM tb_funcionarios interna
+              WHERE interna.id_gerente = externa.id_funcionario)
+
+SELECT id_produto, nm_produto
+FROM tb_produtos externa
+WHERE NOT EXISTS (SELECT 1
+                  FROM tb_compras interna
+                  WHERE interna.id_produto = externa.id_produto);
+
+SELECT id_tipo_produto, nm_tipo_produto
+FROM tb_tipos_produtos externa
+WHERE NOT EXISTS (SELECT 1
+                  FROM tb_produtos interna
+                  WHERE interna.id_tipo_produto = externa.id_tipo_produto);
+
+
+SELECT id_tipo_produto, nm_tipo_produto
+FROM tb_tipos_produtos
+WHERE id_tipo_produto NOT IN (SELECT id_tipo_produto
+                              FROM tb_produtos);
+
+
+SELECT id_tipo_produto, nm_tipo_produto
+FROM tb_tipos_produtos
+WHERE id_tipo_produto NOT IN (SELECT NVL(id_tipo_produto, 0)
+                              FROM tb_produtos);
+                              
+SELECT id_tipo_produto, AVG(preco)
+FROM tb_produtos
+GROUP BY id_tipo_produto
+HAVING AVG(preco) < (SELECT MAX(AVG(preco))
+                     FROM tb_produtos
+                     WHERE id_produto IN (SELECT id_produto
+                                          FROM tb_compras
+                                          WHERE quantidade > 1)
+                     GROUP BY id_tipo_produto)
+ORDER BY id_tipo_produto;
+
+SELECT sobrenome,id_departamento
+FROM tb_funcionarios
+WHERE (salario,id_departamento) IN (SELECT salario, id_departamento
+                                     FROM tb_empregados
+                                      WHERE percentual_comissao IS NOT NULL);
+
+SELECT e.sobrenome, d.nm_departamento,e.salario
+FROM tb_empregado e,tb_departamento d
+WHERE e.id_departamento = d.id_departamento
+AND (salario , NVL(percentual_comissao, 0)) IN
+                                                (SELECT salario, NVL(percentual_comissao, 0)
+                                                FROM tb_funcionarios e, tb_departamento d
+                                                WHERE e.id_departamento = d.id_departamento
+                                                AND d.id_localizacao = 1700);
+SELECT nome,sobrenome
+FROM tb_empregado
+WHERE salario, NVL(percentual_comissao, 0) = 
+                (SELECT salarioNVL(percentual_comissao, 0)
+                FROM tb_empregado
+                WHERE sobrenome = 'Kocchar')
+AND sobrenome != 'Kocchar';
+
+SELECT id_empregado, sobrenome, id_departamento
+FROM tb_empregado
+WHERE id_departamento IN
+                        (SELECT id_departamento
+                        FROM tb_departamento
+                        WHERE id_localizacao IN
+                                                (SELECT id_localizacao
+                                                FROM tb_localizacao
+                                                WHERE cidade LIKE 'T%'));
